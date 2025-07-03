@@ -1,65 +1,30 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
+const nextConfig = {
   reactStrictMode: true,
   images: {
     domains: [
-      'placehold.co',
       'images.unsplash.com',
       'source.unsplash.com',
       'plus.unsplash.com'
     ],
   },
+  // Remove experimental.appDir as it's now stable in Next.js 13+
   experimental: {
-    appDir: true,
-    // Optional: Enable new Next.js features you want to use
-    serverComponentsExternalPackages: ['sharp', 'onnxruntime-node'],
+    serverComponentsExternalPackages: ['@heroicons/react'], // Add heroicons here
+    optimizePackageImports: ['@heroicons/react'] // Optional: Improves performance
   },
-  // Enable static HTML export if needed
-  // output: 'export',
-  // Configure Webpack (optional)
-  webpack: (config, { isServer }) => {
-    // Add custom webpack configurations here if needed
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-      }
+  // Webpack configuration to handle module resolution
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@/components': path.resolve(__dirname, 'components'),
+      '@/app': path.resolve(__dirname, 'app')
     }
     return config
   },
-  // Configure headers (optional)
-  headers: async () => [
-    {
-      source: '/(.*)',
-      headers: [
-        {
-          key: 'X-Frame-Options',
-          value: 'DENY',
-        },
-        {
-          key: 'X-Content-Type-Options',
-          value: 'nosniff',
-        },
-        {
-          key: 'Referrer-Policy',
-          value: 'origin-when-cross-origin',
-        },
-      ],
-    },
-  ],
-  // Configure redirects (optional)
-  redirects: async () => [
-    {
-      source: '/old-page',
-      destination: '/new-page',
-      permanent: true,
-    },
-  ],
-  // Internationalization configuration (optional)
-  i18n: {
-    locales: ['en'],
-    defaultLocale: 'en',
-  },
-  // For larger applications with lots of static pages
-  // swcMinify: true,
+  // Required for Vercel deployments
+  output: 'standalone', // Creates optimized deployment files
+  // Remove headers/redirects/i18n if not needed
 }
+
+module.exports = nextConfig
